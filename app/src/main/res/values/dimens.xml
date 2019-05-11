@@ -1,0 +1,8 @@
+<resources>
+    <dimen name="first_keyline">16dp</dimen>
+    <dimen name="second_keyline">72dp</dimen>
+    <dimen name="toolbar_horizontal_padding">8dp</dimen>
+
+    <dimen name="search_elements_spacing">8dp</dimen>
+    <dimen name="fab_margin">16dp</dimen>
+</resources>
