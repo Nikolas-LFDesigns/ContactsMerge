@@ -9,16 +9,21 @@ import io.reactivex.Single
 @Dao
 abstract class ContactDao {
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun insert(contacts: List<Contact>): LongArray
+    @Insert
+    abstract fun insert(contact: Contact): Long
 
-    @Update(onConflict = OnConflictStrategy.IGNORE)
-    abstract fun update(contacts: List<Contact>): Int
+    @Update
+    abstract fun update(contact: Contact): Int
 
     @Transaction
     open fun insertOrUpdate(contacts: List<Contact>) {
-        insert(contacts)
-        update(contacts)
+        contacts.forEach { serverContact ->
+            val contact = serverContact(serverContact.id)
+            contact?.let {
+                serverContact.localId = it.localId // to comply with id already on database
+                update(serverContact)
+            } ?: insert(serverContact)
+        }
     }
 
     @Query("SELECT * FROM contacts ORDER BY name ASC")
@@ -29,4 +34,7 @@ abstract class ContactDao {
 
     @Query("SELECT * FROM contacts WHERE rowid = :id")
     abstract fun contact(id: Int): Single<Contact>
+
+    @Query("SELECT * FROM contacts WHERE server_id = :id")
+    abstract fun serverContact(id: String): Contact?
 }
