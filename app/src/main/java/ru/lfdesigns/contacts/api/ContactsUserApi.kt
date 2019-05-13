@@ -1,7 +1,6 @@
 package ru.lfdesigns.contacts.api
 
 import io.reactivex.Flowable
-import io.reactivex.Single
 import ru.lfdesigns.contacts.model.Contact
 
 /**
@@ -9,13 +8,12 @@ import ru.lfdesigns.contacts.model.Contact
  */
 class ContactsUserApi(private val api: ContactsApi) {
 
-    fun contacts(): Single<ArrayList<Contact>> {
-        val finalList: ArrayList<Contact> = arrayListOf()
+    fun contacts(): Flowable<List<Contact>> {
         return Flowable.concat(
             api.contactsFirstSource().toFlowable(),
             api.contactsSecondSource().toFlowable(),
             api.contactsThirdSource().toFlowable()
-        ).collectInto(finalList, { list, newList -> list.addAll(newList)})
+        ).take(3)
     }
 
 }

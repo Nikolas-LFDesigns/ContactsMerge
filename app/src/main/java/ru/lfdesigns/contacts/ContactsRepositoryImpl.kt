@@ -74,14 +74,18 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
         }
     }
 
-    private fun getRefreshContactsSingle(): Single<ArrayList<Contact>> {
+    private fun getRefreshContactsSingle(): Single<Int> {
+        var count = 0
         return api.contacts()
             .doOnSubscribe { _loadingStatus.postValue(LoadingStatus.LOADING) }
-            .doOnSuccess {
+            .doOnNext {
                 contactDao.insertOrUpdate(it)
-                _loadingStatus.postValue(LoadingStatus.LOADED)
             }
             .doOnError { _loadingStatus.postValue(LoadingStatus.ERROR) }
+            .doOnComplete {
+                _loadingStatus.postValue(LoadingStatus.LOADED)
+            }
+            .collectInto(count, { _, list -> count += list.size})
     }
 
     @SuppressLint("CheckResult")
