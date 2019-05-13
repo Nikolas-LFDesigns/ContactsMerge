@@ -84,7 +84,7 @@ class ContactDetailFragment : Fragment() {
     @SuppressLint("SetTextI18n")
     private fun fillInFields(contact: Contact) {
         name.text = contact.name
-        phone.text = contact.phone
+        phone.text = contact.phone.toString()
         temperament.text = contact.temperament.toString()
         val formatter = DateFormat.getDateInstance(DateFormat.SHORT)
         educationPeriod.text = "${formatter.format(contact.educationPeriod.start)} - ${formatter.format(contact.educationPeriod.end)}"

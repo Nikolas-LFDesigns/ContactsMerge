@@ -58,7 +58,7 @@ class ContactsAdapter: PagedListAdapter<Contact, ContactsAdapter.ViewHolder>(Con
                 _item = value
                 _item?.let {
                     nameView.text = it.name
-                    numberView.text = it.phone
+                    numberView.text = it.phone.toString()
                     heightView.text = it.height.toString()
                 }
             }

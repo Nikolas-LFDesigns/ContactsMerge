@@ -16,6 +16,8 @@ import dagger.android.AndroidInjector
 import ru.lfdesigns.contacts.api.ContactsUserApi
 import ru.lfdesigns.contacts.db.MyDatabase
 import ru.lfdesigns.contacts.depend.DaggerAppComponent
+import ru.lfdesigns.contacts.model.PhoneNumber
+import ru.lfdesigns.contacts.model.PhoneNumberTypeAdapter
 
 
 class MyApplication: Application(), HasActivityInjector {
@@ -35,9 +37,13 @@ class MyApplication: Application(), HasActivityInjector {
             .build()
             .inject(this);
 
+        val gson = GsonBuilder()
+            .registerTypeAdapter(PhoneNumber::class.java, PhoneNumberTypeAdapter())
+            .create()
+
         val retrofit = Retrofit.Builder()
             .baseUrl("https://raw.githubusercontent.com/SkbkonturMobile/mobile-test-droid/master/json/")
-            .addConverterFactory(GsonConverterFactory.create())
+            .addConverterFactory(GsonConverterFactory.create(gson))
             .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
             .build()
 

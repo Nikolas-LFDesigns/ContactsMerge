@@ -29,7 +29,7 @@ abstract class ContactDao {
     @Query("SELECT * FROM contacts ORDER BY name ASC")
     abstract fun loadContacts(): DataSource.Factory<Int, Contact>
 
-    @Query("SELECT * FROM contacts WHERE name LIKE '%' || :search || '%' OR phone LIKE '%' || :search || '%' ORDER BY name ASC")
+    @Query("SELECT * FROM contacts WHERE name LIKE '%' || :search || '%' OR phone_normalized LIKE '%' || :search || '%' ORDER BY name ASC")
     abstract fun findContacts(search: String): DataSource.Factory<Int, Contact>
 
     @Query("SELECT * FROM contacts WHERE rowid = :id")
