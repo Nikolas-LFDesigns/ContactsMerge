@@ -3,6 +3,9 @@ package ru.lfdesigns.contacts.db
 import androidx.paging.DataSource
 import ru.lfdesigns.contacts.model.Contact
 
+/**
+ * Creates a data source abstracting search results from observer
+ */
 class ContactsSearchDataSourceFactory(private val dao: ContactDao) :
     DataSource.Factory<Int, Contact>() {
 

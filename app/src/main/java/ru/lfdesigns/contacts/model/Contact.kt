@@ -2,6 +2,7 @@ package ru.lfdesigns.contacts.model
 
 import androidx.room.*
 
+// TODO: remove @Embedded in favor to @Relation
 @Entity(tableName = "contacts", indices = [Index(value = ["name", "phone_normalized"]), Index(value = ["server_id"], unique = true)])
 data class Contact(@ColumnInfo(name = "server_id") val id: String,
                    val name: String,

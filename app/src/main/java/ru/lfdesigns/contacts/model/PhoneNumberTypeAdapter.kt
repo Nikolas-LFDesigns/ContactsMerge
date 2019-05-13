@@ -14,6 +14,7 @@ class PhoneNumberTypeAdapter: JsonDeserializer<PhoneNumber> {
     @Throws(JsonParseException::class)
     override fun deserialize(element: JsonElement, type: Type, context: JsonDeserializationContext): PhoneNumber {
         val number = element.asString
+        // split number into code, operator and subscriber parts
         val regex = Regex("(\\+?[\\d+]+) \\(?([\\d]+)\\)? +([\\d-]+)")
         val result = regex.find(number)
         val normalized = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
