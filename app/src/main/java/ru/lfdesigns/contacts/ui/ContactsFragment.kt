@@ -6,7 +6,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
+import android.widget.EditText
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment
@@ -16,7 +17,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dagger.android.support.AndroidSupportInjection
-import kotlinx.android.synthetic.main.fragment_contacts.*
+import kotlinx.android.synthetic.main.content_contacts.*
+import io.reactivex.BackpressureStrategy
+import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.CompositeDisposable
+import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.search_bar.*
 import ru.lfdesigns.contacts.R
 
 import ru.lfdesigns.contacts.arch.ContactsViewModel
@@ -25,8 +32,8 @@ import ru.lfdesigns.contacts.model.*
 import javax.inject.Inject
 import ru.lfdesigns.contacts.arch.ContactsInteractor
 import ru.lfdesigns.contacts.ui.adapter.ContactsAdapter
+import java.util.concurrent.TimeUnit
 
-// TODO: search bar on toolbar
 class ContactsFragment : Fragment() {
 
     @Inject
@@ -38,6 +45,8 @@ class ContactsFragment : Fragment() {
     lateinit var contactsInteractor: ContactsInteractor
 
     private lateinit var itemsAdapter: ContactsAdapter
+
+    private val subscribers = CompositeDisposable()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -85,6 +94,41 @@ class ContactsFragment : Fragment() {
         itemsAdapter.clickListener = {
             contactsInteractor.handleContactChoice(it.localId)
         }
+
+        setUpSearchBar()
+    }
+
+    private fun setUpSearchBar() {
+        subscribers.add(search_query.textChanged()
+            .debounce(300, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
+            .doOnNext{ query ->
+                if (query.isEmpty()) {
+                    viewModel?.setSearchTerm(null)
+                    search_query.post {
+                        button_clear.visibility = View.GONE
+                    }
+                }
+            }
+            .filter(String::isNotEmpty)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe { query ->
+                button_clear.visibility = View.VISIBLE
+                viewModel?.setSearchTerm(query)
+            }
+        )
+        button_clear.setOnClickListener { search_query.setText("") }
+    }
+
+    private fun EditText.textChanged(): Flowable<String> {
+        return Flowable.create({
+            doAfterTextChanged { editable ->
+                if (it.isCancelled) return@doAfterTextChanged;
+
+                val query = editable.toString()
+                it.onNext(query)
+            }
+        }, BackpressureStrategy.MISSING)
     }
 
     private fun clearLoadingStatus() {
@@ -124,4 +168,8 @@ class ContactsFragment : Fragment() {
         super.onAttach(context)
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        subscribers.clear()
+    }
 }

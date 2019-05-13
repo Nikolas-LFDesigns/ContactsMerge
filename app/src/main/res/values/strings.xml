@@ -2,4 +2,5 @@
     <string name="app_name">Contact book</string>
     <string name="app_title">Contact book</string>
     <string name="error_generic">Something went wrong</string>
+    <string name="hint_search">Search</string>
 </resources>

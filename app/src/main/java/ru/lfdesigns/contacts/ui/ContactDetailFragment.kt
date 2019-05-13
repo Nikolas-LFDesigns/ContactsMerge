@@ -7,15 +7,14 @@ import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.NavHostFragment
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.contact.name
+import kotlinx.android.synthetic.main.content_contact_detail.*
 import kotlinx.android.synthetic.main.fragment_contact_detail.*
 
 import ru.lfdesigns.contacts.R
@@ -36,14 +35,11 @@ class ContactDetailFragment : Fragment() {
 
     private var viewModel: ContactDetailViewModel? = null
 
-    private var previousTitle = ""
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             contactId = it.getInt(ARG_CONTACT_ID)
         }
-        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -55,6 +51,10 @@ class ContactDetailFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
+        toolbar.setNavigationOnClickListener {
+            NavHostFragment.findNavController(this).navigateUp()
+        }
 
         phone.setOnClickListener {
             activity?.let {
@@ -79,30 +79,6 @@ class ContactDetailFragment : Fragment() {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        (activity as? AppCompatActivity)?.let {
-            it.supportActionBar?.apply {
-                setDisplayHomeAsUpEnabled(true)
-                previousTitle = title.toString()
-                title = ""
-            }
-        }
-    }
-
-    override fun onDetach() {
-        (activity as? AppCompatActivity)?.let {
-            it.supportActionBar?.apply {
-                setDisplayHomeAsUpEnabled(false)
-                title = previousTitle
-            }
-        }
-        super.onDetach()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == android.R.id.home) {
-            NavHostFragment.findNavController(this).navigateUp()
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     @SuppressLint("SetTextI18n")

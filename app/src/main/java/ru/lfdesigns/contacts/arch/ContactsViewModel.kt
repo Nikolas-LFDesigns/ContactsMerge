@@ -22,4 +22,9 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
         repository.clearError()
     }
 
+    fun setSearchTerm(query: String?) {
+        repository.setContactsQuery(query)
+        contacts.value?.dataSource?.invalidate()
+    }
+
 }

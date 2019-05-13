@@ -8,6 +8,7 @@ import ru.lfdesigns.contacts.ContactsRepositoryImpl
 import ru.lfdesigns.contacts.MyApplication
 import ru.lfdesigns.contacts.api.ContactsUserApi
 import ru.lfdesigns.contacts.db.ContactDao
+import ru.lfdesigns.contacts.db.ContactsSearchDataSourceFactory
 import ru.lfdesigns.contacts.db.MyDatabase
 import ru.lfdesigns.contacts.db.RefreshStatusDao
 import javax.inject.Singleton
@@ -28,9 +29,15 @@ class AppModule {
     @Singleton
     @Provides
     internal fun provideContactsRepository(api: ContactsUserApi,
+                                           contactsFactory: ContactsSearchDataSourceFactory,
                                            contactDao: ContactDao,
                                            refreshStatusDao: RefreshStatusDao): ContactsRepository {
-        return ContactsRepositoryImpl(api, contactDao, refreshStatusDao)
+        return ContactsRepositoryImpl(api, contactsFactory, contactDao, refreshStatusDao)
+    }
+
+    @Provides
+    internal fun provideContactsSearchDataSourceFactory(contactDao: ContactDao): ContactsSearchDataSourceFactory {
+        return ContactsSearchDataSourceFactory(contactDao)
     }
 
     @Provides

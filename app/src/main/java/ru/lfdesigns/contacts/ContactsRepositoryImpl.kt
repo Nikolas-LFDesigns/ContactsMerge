@@ -10,6 +10,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import ru.lfdesigns.contacts.api.ContactsUserApi
 import ru.lfdesigns.contacts.db.ContactDao
+import ru.lfdesigns.contacts.db.ContactsSearchDataSourceFactory
 import ru.lfdesigns.contacts.db.RefreshStatusDao
 import ru.lfdesigns.contacts.model.Contact
 import ru.lfdesigns.contacts.model.LoadingStatus
@@ -22,8 +23,9 @@ import kotlin.collections.ArrayList
 
 @Singleton
 class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserApi,
-                                             private val contactDao: ContactDao,
-                                             private val refreshStatusDao: RefreshStatusDao) : ContactsRepository {
+                                                 private val contactsFactory: ContactsSearchDataSourceFactory,
+                                                 private val contactDao: ContactDao,
+                                                 private val refreshStatusDao: RefreshStatusDao) : ContactsRepository {
 
     private var _loadingStatus: MutableLiveData<LoadingStatus> = MutableLiveData(LoadingStatus.IDLE)
 
@@ -40,7 +42,7 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
             .observeOn(Schedulers.computation())
             .subscribeOn(Schedulers.computation())
             .subscribe ({}, Throwable::printStackTrace)
-        return contactDao.loadContacts().toLiveData(pageSize = 20)
+        return contactsFactory.toLiveData(pageSize = 20)
     }
 
     private fun getRefreshNeededSingle(): Single<Boolean> {
@@ -97,5 +99,9 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
 
     override fun contactById(id: Int): Single<Contact> {
         return contactDao.contact(id)
+    }
+
+    override fun setContactsQuery(query: String?) {
+        contactsFactory.query = query
     }
 }

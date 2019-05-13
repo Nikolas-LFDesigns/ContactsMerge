@@ -12,4 +12,5 @@ interface ContactsRepository {
     fun refreshContacts()
     fun clearError()
     fun contactById(id: Int): Single<Contact>
+    fun setContactsQuery(query: String?)
 }

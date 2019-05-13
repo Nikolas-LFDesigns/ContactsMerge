@@ -32,6 +32,11 @@
         <item name="android:paddingRight">@dimen/toolbar_horizontal_padding</item>
     </style>
 
+    <style name="Custom.Widget.Toolbar.Search" parent="Custom.Widget.Toolbar">
+        <item name="android:paddingTop">@dimen/toolbar_vertical_padding</item>
+        <item name="android:paddingBottom">@dimen/toolbar_vertical_padding</item>
+    </style>
+
     <style name="Custom.Widget.Toolbar.Button.Navigation" parent="Widget.AppCompat.Toolbar.Button.Navigation">
         <item name="android:minWidth">48dp</item>
     </style>
