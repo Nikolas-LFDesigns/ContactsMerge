@@ -5,9 +5,9 @@ import ru.lfdesigns.contacts.ui.ContactsFragmentDirections
 
 class ContactsInteractor {
 
-    var navController: NavController? = null
+    lateinit var navController: NavController
 
     fun handleContactChoice(id: Int) {
-        navController?.navigate(ContactsFragmentDirections.showDetailAction(id))
+        navController.navigate(ContactsFragmentDirections.showDetailAction(id))
     }
 }
