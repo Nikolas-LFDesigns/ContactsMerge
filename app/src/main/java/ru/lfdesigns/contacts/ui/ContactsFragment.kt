@@ -38,7 +38,9 @@ class ContactsFragment : Fragment() {
     @Inject
     lateinit var viewModelFactory: ContactsViewModelFactory
 
-    private var viewModel: ContactsViewModel? = null
+    private val viewModel: ContactsViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(ContactsViewModel::class.java)
+    }
 
     private lateinit var itemsAdapter: ContactsAdapter
 
@@ -53,8 +55,7 @@ class ContactsFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(ContactsViewModel::class.java)
-        viewModel?.let {
+        viewModel.let {
             it.contacts.observe(viewLifecycleOwner, Observer<PagedList<Contact>> { contacts ->
                 clearLoadingStatus()
                 itemsAdapter.submitList(contacts)
@@ -76,7 +77,7 @@ class ContactsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         swipeContainer.setOnRefreshListener {
-            viewModel?.refreshContacts()
+            viewModel.refreshContacts()
         }
 
         listView.apply {
@@ -86,7 +87,7 @@ class ContactsFragment : Fragment() {
             adapter = itemsAdapter
         }
         itemsAdapter.clickListener = {
-            NavHostFragment.findNavController(this).navigate(ContactsFragmentDirections.showDetailAction(id))
+            NavHostFragment.findNavController(this).navigate(ContactsFragmentDirections.showDetailAction(it.localId))
         }
 
         setUpSearchBar()
@@ -97,7 +98,7 @@ class ContactsFragment : Fragment() {
             .debounce(300, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
             .doOnNext{ query ->
                 if (query.isEmpty()) {
-                    viewModel?.setSearchTerm(null)
+                    viewModel.setSearchTerm(null)
                     search_query.post {
                         button_clear.visibility = View.GONE
                     }
@@ -108,7 +109,7 @@ class ContactsFragment : Fragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { query ->
                 button_clear.visibility = View.VISIBLE
-                viewModel?.setSearchTerm(query)
+                viewModel.setSearchTerm(query)
             }
         )
         button_clear.setOnClickListener { search_query.setText("") }
@@ -146,7 +147,7 @@ class ContactsFragment : Fragment() {
                         .addCallback(object: Snackbar.Callback() {
 
                         override fun onDismissed(snackbar: Snackbar , event: Int) {
-                            viewModel?.clearError()
+                            viewModel.clearError()
                         }
 
                     }).show()

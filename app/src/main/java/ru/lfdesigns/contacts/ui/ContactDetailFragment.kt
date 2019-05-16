@@ -33,7 +33,9 @@ class ContactDetailFragment : Fragment() {
 
     private var contactId: Int = 0
 
-    private var viewModel: ContactDetailViewModel? = null
+    private val viewModel: ContactDetailViewModel by lazy {
+        ViewModelProviders.of(this, viewModelFactory).get(ContactDetailViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -67,8 +69,7 @@ class ContactDetailFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
-        viewModel = ViewModelProviders.of(this, viewModelFactory).get(ContactDetailViewModel::class.java)
-        viewModel?.let {
+        viewModel.let {
             it.contactDetail.observe(viewLifecycleOwner, Observer<Contact> { contact ->
                 fillInFields(contact)
             })
