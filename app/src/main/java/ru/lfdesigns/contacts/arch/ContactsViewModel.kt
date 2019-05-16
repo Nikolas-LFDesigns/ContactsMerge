@@ -5,12 +5,19 @@ import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import ru.lfdesigns.contacts.ContactsRepository
 import ru.lfdesigns.contacts.model.*
+import ru.lfdesigns.contacts.query.Queryable
 import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(private val repository: ContactsRepository
 ) : ViewModel() {
 
-    var contacts: LiveData<PagedList<Contact>> = repository.contacts()
+    val contacts: LiveData<PagedList<Contact>> by lazy {
+        queryable.data
+    }
+
+    private val queryable: Queryable<String, PagedList<Contact>> by lazy {
+        repository.contacts()
+    }
 
     var loadingStatus: LiveData<LoadingStatus> = repository.loadingStatus()
 
@@ -23,8 +30,7 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
     }
 
     fun setSearchTerm(query: String?) {
-        repository.setContactsQuery(query)
-        contacts.value?.dataSource?.invalidate()
+        queryable.query = query
     }
 
 }

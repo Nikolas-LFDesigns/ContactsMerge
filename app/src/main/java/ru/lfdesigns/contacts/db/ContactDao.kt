@@ -1,9 +1,9 @@
 package ru.lfdesigns.contacts.db
 
+import androidx.lifecycle.LiveData
 import ru.lfdesigns.contacts.model.Contact
 import androidx.paging.DataSource
 import androidx.room.*
-import io.reactivex.Single
 
 
 @Dao
@@ -33,7 +33,7 @@ abstract class ContactDao {
     abstract fun findContacts(search: String): DataSource.Factory<Int, Contact>
 
     @Query("SELECT * FROM contacts WHERE rowid = :id")
-    abstract fun contact(id: Int): Single<Contact>
+    abstract fun contact(id: Int): LiveData<Contact>
 
     @Query("SELECT * FROM contacts WHERE server_id = :id")
     abstract fun serverContact(id: String): Contact?

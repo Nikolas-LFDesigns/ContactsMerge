@@ -2,9 +2,9 @@ package ru.lfdesigns.contacts
 
 import androidx.lifecycle.LiveData
 import androidx.paging.PagedList
-import io.reactivex.Single
 import ru.lfdesigns.contacts.model.Contact
 import ru.lfdesigns.contacts.model.LoadingStatus
+import ru.lfdesigns.contacts.query.Queryable
 
 interface ContactsRepository {
     /**
@@ -13,9 +13,9 @@ interface ContactsRepository {
     fun loadingStatus(): LiveData<LoadingStatus>
 
     /**
-     * Gets observable whole contacts list
+     * Gets observable contacts list
      */
-    fun contacts(): LiveData<PagedList<Contact>>
+    fun contacts(): Queryable<String, PagedList<Contact>>
 
     /**
      * Force-refreshes contacts
@@ -30,10 +30,6 @@ interface ContactsRepository {
     /**
      * Asynchronously get single contact from storage
      */
-    fun contactById(id: Int): Single<Contact>
+    fun contact(): Queryable<Int, Contact>
 
-    /**
-     * Apply a search term to the resulting contacts set
-     */
-    fun setContactsQuery(query: String?)
 }

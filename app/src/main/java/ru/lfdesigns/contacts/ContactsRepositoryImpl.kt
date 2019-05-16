@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
-import androidx.paging.toLiveData
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -15,11 +14,11 @@ import ru.lfdesigns.contacts.db.RefreshStatusDao
 import ru.lfdesigns.contacts.model.Contact
 import ru.lfdesigns.contacts.model.LoadingStatus
 import ru.lfdesigns.contacts.model.RefreshStatus
+import ru.lfdesigns.contacts.query.*
 import java.lang.Exception
 import java.util.*
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlin.collections.ArrayList
 
 @Singleton
 class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserApi,
@@ -34,7 +33,7 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
     }
 
     @SuppressLint("CheckResult")
-    override fun contacts(): LiveData<PagedList<Contact>> {
+    override fun contacts(): Queryable<String, PagedList<Contact>> {
         getRefreshNeededSingle()
             .filter { it }
             .flatMapSingle { getSaveNewRefreshValueSingle() }
@@ -42,7 +41,7 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
             .observeOn(Schedulers.computation())
             .subscribeOn(Schedulers.computation())
             .subscribe ({}, Throwable::printStackTrace)
-        return contactsFactory.toLiveData(pageSize = 20)
+        return ContactsQueryable(contactsFactory.toLiveDataFactory(pageSize = 20))
     }
 
     private fun getRefreshNeededSingle(): Single<Boolean> {
@@ -101,11 +100,8 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
         _loadingStatus.postValue(LoadingStatus.IDLE)
     }
 
-    override fun contactById(id: Int): Single<Contact> {
-        return contactDao.contact(id)
+    override fun contact(): Queryable<Int, Contact> {
+        return ContactByIdQueryable(ContactByIdLiveDataFactory(contactDao))
     }
 
-    override fun setContactsQuery(query: String?) {
-        contactsFactory.query = query
-    }
 }
