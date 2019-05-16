@@ -71,7 +71,8 @@ class ContactDetailFragment : Fragment() {
 
         viewModel.let {
             it.contactDetail.observe(viewLifecycleOwner, Observer<Contact> { contact ->
-                fillInFields(contact)
+                if (contact.isValid)
+                    fillInFields(contact)
             })
             it.loadContactById(contactId)
         }
