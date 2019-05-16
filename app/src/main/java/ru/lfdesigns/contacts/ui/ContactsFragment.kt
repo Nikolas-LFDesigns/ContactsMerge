@@ -30,7 +30,6 @@ import ru.lfdesigns.contacts.arch.ContactsViewModel
 import ru.lfdesigns.contacts.arch.ContactsViewModelFactory
 import ru.lfdesigns.contacts.model.*
 import javax.inject.Inject
-import ru.lfdesigns.contacts.arch.ContactsInteractor
 import ru.lfdesigns.contacts.ui.adapter.ContactsAdapter
 import java.util.concurrent.TimeUnit
 
@@ -40,9 +39,6 @@ class ContactsFragment : Fragment() {
     lateinit var viewModelFactory: ContactsViewModelFactory
 
     private var viewModel: ContactsViewModel? = null
-
-    @Inject
-    lateinit var contactsInteractor: ContactsInteractor
 
     private lateinit var itemsAdapter: ContactsAdapter
 
@@ -56,8 +52,6 @@ class ContactsFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-
-        contactsInteractor.navController = NavHostFragment.findNavController(this)
 
         viewModel = ViewModelProviders.of(this, viewModelFactory).get(ContactsViewModel::class.java)
         viewModel?.let {
@@ -92,7 +86,7 @@ class ContactsFragment : Fragment() {
             adapter = itemsAdapter
         }
         itemsAdapter.clickListener = {
-            contactsInteractor.handleContactChoice(it.localId)
+            NavHostFragment.findNavController(this).navigate(ContactsFragmentDirections.showDetailAction(id))
         }
 
         setUpSearchBar()
