@@ -7,10 +7,6 @@ import ru.lfdesigns.contacts.model.LoadingStatus
 import ru.lfdesigns.contacts.query.Queryable
 
 interface ContactsRepository {
-    /**
-     * Gets observable contacts loading status
-     */
-    fun loadingStatus(): LiveData<LoadingStatus>
 
     /**
      * Gets observable contacts list

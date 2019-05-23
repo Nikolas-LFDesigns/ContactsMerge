@@ -26,7 +26,9 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
         repository.contacts()
     }
 
-    var loadingStatus: LiveData<LoadingStatus> = repository.loadingStatus()
+    val loadingStatus: LiveData<LoadingStatus> by lazy {
+        (queryable as StatusResponse).status
+    }
 
     private val queryPublisher: PublishSubject<String> = PublishSubject.create()
     private val subscribers = CompositeDisposable()

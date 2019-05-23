@@ -1,8 +1,6 @@
 package ru.lfdesigns.contacts
 
 import android.annotation.SuppressLint
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.paging.PagedList
 import io.reactivex.*
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -26,10 +24,8 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
                                                  private val contactDao: ContactDao,
                                                  private val refreshStatusDao: RefreshStatusDao) : ContactsRepository {
 
-    private var _loadingStatus: MutableLiveData<LoadingStatus> = MutableLiveData(LoadingStatus.IDLE)
-
-    override fun loadingStatus(): LiveData<LoadingStatus> {
-        return _loadingStatus
+    private val contacts by lazy {
+        ContactsQueryable(contactsFactory.toLiveDataFactory(pageSize = 20))
     }
 
     @SuppressLint("CheckResult")
@@ -41,7 +37,7 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
             .observeOn(Schedulers.computation())
             .subscribeOn(Schedulers.computation())
             .subscribe ({}, Throwable::printStackTrace)
-        return ContactsQueryable(contactsFactory.toLiveDataFactory(pageSize = 20))
+        return contacts
     }
 
     private fun getRefreshNeededSingle(): Single<Boolean> {
@@ -76,13 +72,13 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
     private fun getRefreshContactsSingle(): Single<Int> {
         var count = 0
         return api.contacts()
-            .doOnSubscribe { _loadingStatus.postValue(LoadingStatus.LOADING) }
+            .doOnSubscribe { contacts.setStatus(LoadingStatus.LOADING) }
             .doOnNext {
                 contactDao.insertOrUpdate(it)
             }
-            .doOnError { _loadingStatus.postValue(LoadingStatus.ERROR) }
+            .doOnError { contacts.setStatus(LoadingStatus.ERROR) }
             .doOnComplete {
-                _loadingStatus.postValue(LoadingStatus.LOADED)
+                contacts.setStatus(LoadingStatus.LOADED)
             }
             .collectInto(count, { _, list -> count += list.size})
     }
@@ -97,7 +93,7 @@ class ContactsRepositoryImpl @Inject constructor(private var api: ContactsUserAp
     }
 
     override fun clearError() {
-        _loadingStatus.postValue(LoadingStatus.IDLE)
+        contacts.setStatus(LoadingStatus.IDLE)
     }
 
     override fun contact(): Queryable<Int, Contact> {
