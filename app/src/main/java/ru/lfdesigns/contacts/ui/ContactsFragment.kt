@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
@@ -85,7 +86,8 @@ class ContactsFragment : Fragment() {
 
         listView.apply {
             layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-            itemsAdapter = ContactsAdapter()
+            val termHighlighter = SearchTermHighlighter(ContextCompat.getColor(context, R.color.colorPrimary))
+            itemsAdapter = ContactsAdapter(termHighlighter)
             addItemDecoration(DividerItemDecoration(activity, DividerItemDecoration.HORIZONTAL))
             adapter = itemsAdapter
         }
