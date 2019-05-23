@@ -95,20 +95,15 @@ class ContactsFragment : Fragment() {
 
     private fun setUpSearchBar() {
         subscribers.add(search_query.textChanged()
-            .debounce(300, TimeUnit.MILLISECONDS, AndroidSchedulers.mainThread())
-            .doOnNext{ query ->
-                if (query.isEmpty()) {
-                    viewModel.setSearchTerm(null)
-                    search_query.post {
-                        button_clear.visibility = View.GONE
-                    }
-                }
-            }
-            .filter(String::isNotEmpty)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe { query ->
-                button_clear.visibility = View.VISIBLE
+                if (query.isNotEmpty()) {
+                    button_clear.visibility = View.VISIBLE
+                } else {
+                    button_clear.visibility = View.GONE
+                }
+
                 viewModel.setSearchTerm(query)
             }
         )
