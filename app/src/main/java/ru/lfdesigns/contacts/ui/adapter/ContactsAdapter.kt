@@ -37,13 +37,13 @@ class ContactsAdapter(private val termHighlighter: SearchTermHighlighter? = null
         val v = LayoutInflater.from(parent.context).inflate(R.layout.contact, parent, false)
         return ViewHolder(v).also {
             it.termHighlighter = termHighlighter
+            it.clickListener = clickListener
         }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         holder.item = item
-        holder.clickListener = clickListener
     }
 
     var clickListener: ((Contact) -> Unit)? = null
