@@ -63,6 +63,9 @@ class ContactsFragment : Fragment() {
             it.loadingStatus.observe(viewLifecycleOwner, Observer<LoadingStatus> { status ->
                 handleLoadingStatusChanged(status)
             })
+            it.visualSearchTerm.observe(viewLifecycleOwner, Observer<String> { query ->
+                itemsAdapter.searchTerm = query
+            })
         }
     }
 

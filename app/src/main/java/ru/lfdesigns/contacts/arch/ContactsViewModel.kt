@@ -1,6 +1,7 @@
 package ru.lfdesigns.contacts.arch
 
 import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.paging.PagedList
 import io.reactivex.BackpressureStrategy
@@ -17,6 +18,9 @@ import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(private val repository: ContactsRepository
 ) : ViewModel() {
+
+    private val _visualSearchTerm = MutableLiveData<String>()
+    val visualSearchTerm: LiveData<String> = _visualSearchTerm
 
     val contacts: LiveData<PagedList<Contact>> by lazy {
         queryable.data
@@ -37,8 +41,10 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
         subscribers.add(
             queryPublisher.toFlowable(BackpressureStrategy.BUFFER)
                 .doOnNext { query-> // remove empty query earlier to instantly show whole list
-                    if (query.isNullOrEmpty())
+                    if (query.isNullOrEmpty()) {
+                        _visualSearchTerm.postValue(null)
                         queryable.query = null
+                    }
                 }
                 .filter(String::isNotEmpty)
                 .debounce(300, TimeUnit.MILLISECONDS, Schedulers.io())
@@ -49,6 +55,7 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe { query ->
+                    _visualSearchTerm.value = query
                     queryable.query = query
                 }
         )
