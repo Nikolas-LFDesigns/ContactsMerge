@@ -16,7 +16,8 @@ import ru.lfdesigns.contacts.query.Queryable
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
-class ContactsViewModel @Inject constructor(private val repository: ContactsRepository
+class ContactsViewModel @Inject constructor(private val repository: ContactsRepository,
+                                            var onContactItemClicked: ( (Int) -> Unit )?
 ) : ViewModel() {
 
     private val _visualSearchTerm = MutableLiveData<String>()
@@ -63,6 +64,7 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
 
     override fun onCleared() {
         subscribers.clear()
+        onContactItemClicked = null
         super.onCleared()
     }
 
@@ -76,6 +78,10 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
 
     fun setSearchTerm(query: String) {
         queryPublisher.onNext(query)
+    }
+
+    fun contactItemClicked(id: Int) {
+        onContactItemClicked?.invoke(id)
     }
 
 }

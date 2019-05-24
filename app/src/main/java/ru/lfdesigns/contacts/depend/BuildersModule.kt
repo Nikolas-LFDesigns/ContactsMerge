@@ -12,7 +12,8 @@ abstract class BuildersModule {
     @ContributesAndroidInjector
     abstract fun bindMainActivity(): MainActivity
 
-    @ContributesAndroidInjector(modules = [ContactsFragmentModule::class])
+    @ContactsScope
+    @ContributesAndroidInjector(modules = [ContactsFragmentModule::class, ContactsFragmentBindingModule::class])
     abstract fun bindContactsFragment(): ContactsFragment
 
     @ContributesAndroidInjector(modules = [ContactDetailFragmentModule::class])
