@@ -10,19 +10,7 @@ import ru.lfdesigns.contacts.arch.ContactsViewModelFactory
 import ru.lfdesigns.contacts.ui.ContactsFragment
 import ru.lfdesigns.contacts.ui.coordinators.ContactsFlowCoordinator
 import ru.lfdesigns.contacts.ui.coordinators.ContactsNavigator
-import ru.lfdesigns.contacts.ui.coordinators.NavigatorWrapper
-import dagger.MapKey
-import java.lang.annotation.Documented
-import java.lang.annotation.ElementType
-import java.lang.annotation.RetentionPolicy
-import kotlin.reflect.KClass
 
-
-@MustBeDocumented
-@Target(AnnotationTarget.FUNCTION)
-@Retention
-@MapKey
-annotation class ClassKey(val value: KClass<out Fragment>)
 
 @Module
 class ContactsFragmentModule {
@@ -38,27 +26,26 @@ class ContactsFragmentModule {
     @ContactsScope
     @Provides
     @IntoMap @ClassKey(ContactsFragment::class)
-    internal fun provideContactsFlowCoordinator(navigator: ContactsNavigator)
+    internal fun provideContactsFlowCoordinator()
             : ContactsFlowCoordinator {
-        return ContactsFlowCoordinator(navigator)
+        return ContactsFlowCoordinator()
     }
 
     @ContactsScope
     @Provides
-    @IntoMap @ClassKey(ContactsFragment::class)
-    internal fun provideContactsNavigator()
+    internal fun provideContactsNavigator(fragment: Fragment)
             : ContactsNavigator {
-        return ContactsNavigator()
+        return ContactsNavigator(fragment)
     }
 
 }
 
 @Module
 abstract class ContactsFragmentBindingModule {
-/*
+
     @ContactsScope
     @Binds
-    abstract fun getContactsNavigatorAsNavigatorWrapper(contactsNavigator: ContactsNavigator):
-            NavigatorWrapper*/
+    abstract fun getContactsFragmentAsFragment(fragment: ContactsFragment):
+        Fragment
 
 }

@@ -9,10 +9,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import androidx.core.content.ContextCompat
 import androidx.core.widget.doAfterTextChanged
-import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.NavHostFragment
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -33,9 +31,8 @@ import ru.lfdesigns.contacts.arch.ContactsViewModelFactory
 import ru.lfdesigns.contacts.model.*
 import javax.inject.Inject
 import ru.lfdesigns.contacts.ui.adapter.ContactsAdapter
+import ru.lfdesigns.contacts.ui.coordinators.ContactsFlowCoordinator
 import ru.lfdesigns.contacts.ui.coordinators.ContactsNavigator
-import ru.lfdesigns.contacts.ui.coordinators.NavigatorWrapper
-import java.util.concurrent.TimeUnit
 
 class ContactsFragment : Fragment() {
 
@@ -46,6 +43,8 @@ class ContactsFragment : Fragment() {
         ViewModelProviders.of(this, viewModelFactory).get(ContactsViewModel::class.java)
     }
 
+    @Inject
+    lateinit var coordinator: ContactsFlowCoordinator
     @Inject
     lateinit var navigator: ContactsNavigator
 
@@ -98,8 +97,7 @@ class ContactsFragment : Fragment() {
             adapter = itemsAdapter
         }
         itemsAdapter.clickListener = {
-            viewModel.contactItemClicked(it.localId)
-            //NavHostFragment.findNavController(this).navigate(ContactsFragmentDirections.showDetailAction(it.localId))
+            viewModel.showContactDetails(it.localId)
         }
 
         setUpSearchBar()
@@ -168,11 +166,11 @@ class ContactsFragment : Fragment() {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
-        navigator.attach(this)
+        coordinator.attachNavigator(navigator)
     }
 
     override fun onDetach() {
-        navigator.detach()
+        coordinator.detachNavigator()
         super.onDetach()
     }
 

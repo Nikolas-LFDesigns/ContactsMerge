@@ -6,27 +6,26 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import ru.lfdesigns.contacts.depend.ContactsScope
 
-open class NavigatorWrapper : LifecycleObserver {
+/**
+ * Wraps a navigation pattern which historically belongs to View.
+ * Since it deals with temporary objects with lifecycle, it needs to be initialized/deinitialized
+ * with an attach/detach pattern, using corresponding [Fragment] methods [Fragment.onAttach] and [Fragment.onDetach]
+ */
+open class NavigatorWrapper(private val fragment: Fragment) : INavigatorWrapper, LifecycleObserver {
 
     protected lateinit var navigator: NavController
-    private var fragment: Fragment? = null
 
-    fun attach(fragment: Fragment) {
-        this.fragment = fragment
+    override fun attach() {
         fragment.lifecycle.addObserver(this)
     }
 
-    fun detach() {
-        this.fragment?.lifecycle?.removeObserver(this)
-        this.fragment = null
+    override fun detach() {
+        this.fragment.lifecycle.removeObserver(this)
     }
 
-    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    @OnLifecycleEvent(Lifecycle.Event.ON_START)
     fun onStart(){
-        fragment?.let {
-            navigator = NavHostFragment.findNavController(it)
-        }
+        navigator = NavHostFragment.findNavController(fragment)
     }
 }

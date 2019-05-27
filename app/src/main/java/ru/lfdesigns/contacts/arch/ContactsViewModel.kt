@@ -17,7 +17,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
 class ContactsViewModel @Inject constructor(private val repository: ContactsRepository,
-                                            var onContactItemClicked: ( (Int) -> Unit )?
+                                            private var onShowContactDetails: ( (Int) -> Unit )?
 ) : ViewModel() {
 
     private val _visualSearchTerm = MutableLiveData<String>()
@@ -64,7 +64,7 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
 
     override fun onCleared() {
         subscribers.clear()
-        onContactItemClicked = null
+        onShowContactDetails = null
         super.onCleared()
     }
 
@@ -80,8 +80,8 @@ class ContactsViewModel @Inject constructor(private val repository: ContactsRepo
         queryPublisher.onNext(query)
     }
 
-    fun contactItemClicked(id: Int) {
-        onContactItemClicked?.invoke(id)
+    fun showContactDetails(id: Int) {
+        onShowContactDetails?.invoke(id)
     }
 
 }
