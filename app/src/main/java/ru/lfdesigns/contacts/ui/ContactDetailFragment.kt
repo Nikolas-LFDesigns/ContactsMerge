@@ -2,8 +2,6 @@ package ru.lfdesigns.contacts.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -11,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.NavHostFragment
 import dagger.android.support.AndroidSupportInjection
 import kotlinx.android.synthetic.main.contact.name
 import kotlinx.android.synthetic.main.content_contact_detail.*
@@ -21,6 +18,8 @@ import ru.lfdesigns.contacts.R
 import ru.lfdesigns.contacts.arch.ContactDetailViewModel
 import ru.lfdesigns.contacts.arch.ContactDetailViewModelFactory
 import ru.lfdesigns.contacts.model.Contact
+import ru.lfdesigns.contacts.ui.coordinators.ContactDetailFlowCoordinator
+import ru.lfdesigns.contacts.ui.coordinators.ContactDetailNavigator
 import java.text.DateFormat
 import javax.inject.Inject
 
@@ -36,6 +35,11 @@ class ContactDetailFragment : Fragment() {
     private val viewModel: ContactDetailViewModel by lazy {
         ViewModelProviders.of(this, viewModelFactory).get(ContactDetailViewModel::class.java)
     }
+
+    @Inject
+    lateinit var coordinator: ContactDetailFlowCoordinator
+    @Inject
+    lateinit var navigator: ContactDetailNavigator
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,14 +59,11 @@ class ContactDetailFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         toolbar.setNavigationOnClickListener {
-            NavHostFragment.findNavController(this).navigateUp()
+            viewModel.returnToContacts()
         }
 
         phone.setOnClickListener {
-            activity?.let {
-                val intent = Intent(Intent.ACTION_DIAL, Uri.parse("tel:${phone.text}}"))
-                it.startActivity(intent)
-            }
+            viewModel.dialNumber(phone.text.toString())
         }
     }
 
@@ -81,6 +82,12 @@ class ContactDetailFragment : Fragment() {
     override fun onAttach(context: Context) {
         AndroidSupportInjection.inject(this)
         super.onAttach(context)
+        coordinator.attachNavigator(navigator)
+    }
+
+    override fun onDetach() {
+        coordinator.detachNavigator()
+        super.onDetach()
     }
 
     @SuppressLint("SetTextI18n")
